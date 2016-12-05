@@ -3,29 +3,56 @@
 <head>
     <title>Gallery</title>
     <script type="text/javascript">
-        function loadJSON(path, success, error)
+        function makeRequest (method, url)
         {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function()
+            return new Promise(function(resolve, reject)
             {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        if (success)
-                            success(JSON.parse(xhr.responseText));
-                    } else {
-                        if (error)
-                            error(xhr);
-                    }
-                }
-            };
-            xhr.open("GET", path, true);
-            xhr.send();
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url);
+                xhr.onload = function()
+                {
+                  if (this.status >= 200 && this.status < 300)
+                  {
+                    resolve(xhr.response);
+                  }
+                  else
+                  {
+                    reject({
+                      status: this.status,
+                      statusText: xhr.statusText
+                    });
+                  }
+                };
+                xhr.onerror = function()
+                {
+                  reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                  });
+                };
+                xhr.send();
+            });
         }
     </script>
 </head>
 <body>
 <script type="text/javascript">
-    loadJSON('http://localhost:8080/feed', function(data) { console.log(data); }, function(xhr) { console.error(xhr); });
+    function buildGallery(gallery)
+    {
+        for(itm in gallery)
+        {
+            document.write("<img src='"+gallery[itm]['url']+"'/></br>");
+        }
+    }
+
+
+    makeRequest('GET', 'http://localhost:8080/feed').then(function(data)
+    {
+        buildGallery(JSON.parse(data));
+    }).catch(function (err)
+    {
+        console.error('Augh, there was an error!', err.statusText);
+    });
 </script>
 </body>
 </html>

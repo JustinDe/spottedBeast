@@ -31,7 +31,6 @@ class index:
             f.close()
         except:
             out = "Failed to load templates"
-        print out
         return out
  
 class feed:
