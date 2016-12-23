@@ -1,0 +1,2 @@
+web.py==0.37
+PyTumblr==0.0.6
